@@ -1,0 +1,102 @@
+Tal como pensé la poda desde un principio, no valdría, puesto que buscar nos devuelve una referencia constante, de manera que no
+podría modificar el ABB. Por lo tanto, la búsqueda debo hacerla 
+manualmente. La función poda quedaría tal que así:
+
+void poda(const T& elto)
+{
+	if(elto < r->elto)
+		r->izqdo.poda(elto);
+	if(elto > r->elto)
+		r->drcho.poda(elto);
+	if(elto == r->elto)
+	{
+		delete r; // se irán borrando los subárboles de forma recursiva gracias al destructor.
+		r = nullptr // Para poder insertar, en un futuro, un nuevo subárbol, debemos dejar r en nullptr. Si no se poner, puede conducir a errores como dejar r apuntando a basura.
+	}
+}
+
+
+*** Intentar hacerlo de forma externa ***
+
+
+--- Ejercicio 2 ---
+
+Para hacer este ejercicio de manera más sencilla, lo hacemos de esta manera:
+
+// Función para obtener los elementos del abb de forma ordenada recorriéndolo en inorden.
+void inorden(Abb<T> A, std::vector<T>& eltos)
+{
+	if(A.vacio())
+	{
+		inorden(A.izqdo(), eltos);
+		eltos.push_back(A.elemento());
+		inorden(A.drcho(), eltos);
+	}
+}
+
+// Función para reconstruir el abb.
+template <typename T>
+void Equilibrar(Abb<T>& A)
+{
+	std::vector<T> eltos;
+	
+	// Abb con el que vamos a meter los elementos de forma ordenada.
+	Abb<T> Abbordenado;
+	Inorden(A, eltos);
+	EquilibrarRec(Abbordenado, eltos, 0, eltos.size() - 1);
+	A = Abbordenado;
+}
+
+template <typename T>
+void EquilibradoRec(Abb<T> &A, std::vector<T> eltos, int ini, int fin)
+{
+	// Obtenemos la mediana del vector para introducirlo como raíz del árbol.
+	int mitad = (fin + ini)/2;
+	
+	/* 
+		Con referencia a fin >= ini, ¿qué pasaría si yo hiciese la inserción antes del if y, en la condición del if, 
+		pusiese fin > ini. *** Hay que comprobarlo ***
+	*/
+	if(fin >= ini)
+	{
+		A.insertar(eltos[mitad]);
+		EquilibrarRec(A, eltos, 0, mitad-1);
+		EquilibrarRec(A, eltos, mitad + 1, fin);
+	}
+}
+
+
+
+
+--- Ejercicio 3, 4 y 5 ---
+No hay que hacer una función externa, hay que hacer un nuevo TAD llamado Conjunto, representado por un Abb ya que el enunciado nos dice "Dados dos conjuntos representados mediante árboles binarios de búsqueda". 
+
+Para realizar el ejercicio, recorremos los dos conjuntos, obteniendo dos vectores con los elementos de cada conjunto y los unimos en un solo vector. 
+Aprovechando la función del ejercicio anterior, construimos el nuevo conjunto.
+
+Para la intersección, me hace falta tener implementado un operador pertenece, de manera que, si un elemento pertenece a un conjunto, inserto ese elemento en un abb nuevo que cree.
+
+Para la diferencia, haremos la "Diferencia simétrica", que consiste en que voy mirando los elementos de A que no pertenecen a B. Esos elementos que no pertenezcan a B se introducen en el ABB resultante. Luego, tenemos que hacer lo mismo pero con B, es decir, los elementos de B que no pertenezcan a A, los introducimos en el ABB resultante. Al finalizar, nos queda lo que se nos pide.
+
+class Conjunto{
+	public:
+		Conjunto(){};
+		Conjunto(Abb<T> A);
+		void anadir(T elto);
+		inline bool pertenece(T elto) const; // Función necesaria para la intersección y la diferencia simétrica.
+		Conjunto operator &(const Conjunto& B); // unión de conjuntos.
+		Conjunto operator |(const Conjunto& B); // Intersección de conjuntos.
+		Conjunto operator -(const Conjunto& B); // Diferencia de conjuntos.
+		Conjunto operator =(const Conjunto& B); // Operador de asignación por copia de Conjuntos.
+		const std::vector<T>& eleentos() const { return eltos_; };
+	
+	
+	private:
+		std::vector<T> eltos_;
+		Abb<T> arbol_;
+
+
+
+
+};
+

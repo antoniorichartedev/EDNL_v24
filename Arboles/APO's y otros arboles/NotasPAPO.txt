@@ -1,0 +1,76 @@
+**** Ejercicio 1 ****
+Primero, se nos dice que tenemos que explicar razonadamente por qué hemos escogido la estructura x para hacer el ejercicio.
+Viendo la nota del enunciado, nos dice que "el número de nodos del mismo (es decir, del árbol) NO está acotado". De buenas a 
+primeras, se nos viene a la mente que tenemos que ayudarnos de un APO para poder hacer el ejercicio, pero no. Si miramos bien
+la especificación del TAD APO, vemos que el constructor de un APO nos pide por parámetro, obligatoriamente, el número máximo de
+nodos que va a albergar el APO, por lo tanto, no nos vale. Como nos dice el enunciado que "Dado un árbol binario de enteros..."
+pues escogemos la estructura de un Abin, puesto que podemos añadir dinámicamente los nodos que queramos, sin que esté acotado.
+
+La idea de este ejercicio, o por lo menos como lo pienso, es que hay que buscar el nodo que se quiere eliminar.
+	- Si no lo encontramos, el árbol se queda tal como está.
+	- Si lo encontramos, tenemos que ver si tiene 1, 2 o ningún hijo.
+		- Si no tiene ningún hijo, borramos ese nodo.
+		- Si tiene uno, intercambiamos el hijo con el nodo a eliminar y, si es hoja, lo eliminamos. Si no lo es, tenemos que ir intercambiando hasta que ese nodo a eliminar sea hoja.
+		- Si tiene dos hijos, me quedo con los valores de sus hijos. El menor de los dos, pasará a insertarse en el lugar donde estaba su padre, manteniendo el orden
+		establecido.
+
+Funciones a realizar:
+	- Búsqueda.
+	- Hundir.
+	- Eliminar.
+-----------------------------------------------------------------------
+
+**** Ejercicio 4 ****
+Con un árbol de grado arbitrario, nos referimos a que el árbol es un árbol general, por lo que tenemos que utlizar dicho TAD
+para resolver el problema.
+Para resolver el problema, contamos con dos funciones:
+	- NumHijos, devuelve un entero, calcula el número de hijos que tiene el nodo por el que estamos comprobando.
+	- AgenTernario (incluimos la versión recursiva), devuelve un booleano, recorre el árbol comprobando que todos los nodos tienen
+	3 hijos o ninguno:
+		- Si Numhijos(nodo_a_comprobar) == 0 or Numhijos(nodo_a_comprobar) == 3 -> devolvemos la llamada recursiva al hizq: return AgenTernario(A.hijoIzqdo(nodo_a_comprobar), agen).
+		- Si Numhijos(nodo_a_comprobar) > 0 and Numhijos(nodo_a_comprobar) < 3 and Numhijos(nodo_a_comprobar) > 3 -> devolvemos false.
+		- Si resulta que el nodo_a_comprobar es NODO_NULO -> devolvemos true.
+Solución de Juanfran:
+
+bool esTernario_rec(nodo n, Agen a)
+{
+	if(n != NODO_NULO)
+	{
+		int numhijos = nHijos(n, A);
+		bool flag = (numhijos == 0) or (numhijos == 3);
+		Agen<T>::nodo aux = A.hijoIzqdo(n);
+		while(aux != NODO_NULO and flag)
+		{
+			flag and esTernario_rec(aux, A);
+			aux = A.hermDrcho(aux);
+		}
+	}
+	
+	return flag;
+}
+-----------------------------------------------------------------------
+
+**** Ejercicio 2 ****
+Duda: sabemos que no se inserta de la misma manera que en un apo normal y corriente pero, a la hora de flotar,
+tenemos que cercionarnos de que:
+	- Si el nodo está en un niv. impar, ¿tengo que ver si el elemento de ese nodo es mayor o igual que su padre y menor o igual que su abuelo?
+	- Si el nodo está en niv. par, ¿tengo que ver si el elemento de ese nodo es mayor o igual que su abuelo y menor o igual que su padre?
+	
+-----------------------------------------------------------------------
+
+**** Ejercicio 3 ****
+Duda -> ¿qué condición tiene que cumplir los hijos y los nietos de un nodo para hundir?
+
+-----------------------------------------------------------------------
+
+**** Ejercicio 5 ****
+Para empezar, tenemos que hacer una estructura llamada Pixel:
+typedef struct Pixel
+{
+	std::string color;
+	int x0, x1, y0, y1;
+};
+
+El píxel representa un nodo, el cual, tiene un color y sus cuadrantes.
+
+
