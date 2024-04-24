@@ -2,3 +2,4 @@ Ancestro Común -> ok.
 Camino Abin -> ok.
 Poda Abin -> ok.
 Nodos prósperos -> ok.
+Agen similares -> ok.
