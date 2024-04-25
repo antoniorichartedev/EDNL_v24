@@ -22,3 +22,182 @@
         - Hacemos la llamada recursiva con el hizq del nodo y luego pasamos al hermano derecho del hizq.
 
 */
+
+#include <iostream>
+#include "../Generales/agen.hpp"
+#include "../Generales/agen_E-S.h"
+#include <fstream>
+#include <vector>
+#include <cmath> // ceil.
+
+using std::cout;
+using std::endl;
+
+// Tipo necesario para este ejercicio.
+struct herencia
+{
+    int id;
+    unsigned int dinero;
+    std::vector<std::string> propiedades;
+    herencia(int i = 0, unsigned int d = 0, std::vector<std::string> p = {}): id{i}, dinero{d}, propiedades{p} {}
+};
+
+void mostrar_arbol_herencia_rec(const Agen<herencia> &A, typename Agen<herencia>::nodo n)
+{
+    if (n != Agen<herencia>::NODO_NULO)
+    {
+        typename Agen<herencia>::nodo hijo = A.hijoIzqdo(n);
+        while (hijo != Agen<herencia>::NODO_NULO)
+        {
+            cout << "Hijo llamado " << A.elemento(hijo).id << " cuyo padre es " << A.elemento(A.padre(hijo)).id << ", dinero: " << A.elemento(hijo).dinero << ", propiedades: ";
+            for (const auto &p : A.elemento(hijo).propiedades)
+            {
+                cout << p << " - ";
+            }
+            cout << endl;
+
+            mostrar_arbol_herencia_rec(A, hijo);
+            hijo = A.hermDrcho(hijo);
+        }
+    }
+    else 
+        cout << "Árbol vacío." << endl;
+}
+
+void mostrar_arbol_herencia(const Agen<herencia> &A)
+{
+    if(!A.arbolVacio())
+    {
+        cout << "Raíz del árbol -> " << "dinero: " << A.elemento(A.raiz()).dinero << ", propiedades: ";
+        for (const auto &p : A.elemento(A.raiz()).propiedades)
+        {
+            cout << p << " - ";
+        }
+        cout << endl;
+
+        mostrar_arbol_herencia_rec(A, A.raiz());
+    }
+    else
+        cout << "Árbol vacío." << endl;
+}
+
+template <typename T>
+bool esHoja(typename Agen<T>::nodo n, const Agen<T> &A)
+{
+    if (A.hijoIzqdo(n) != Agen<T>::NODO_NULO)
+        return false;
+    else
+        return true;
+}
+
+template <typename T>
+int NumHijosAgen(typename Agen<T>::nodo n, const Agen<T> &A)
+{
+    int hijos = 0;
+
+    if (!esHoja(n, A))
+    {
+        typename Agen<T>::nodo hijo = A.hijoIzqdo(n);
+        while (hijo != Agen<T>::NODO_NULO)
+        {
+            hijos++;
+            hijo = A.hermDrcho(hijo);
+        }
+    }
+
+    return hijos;
+}
+
+void repartir_herencia_Rec(Agen<herencia>& A, typename Agen<herencia>::nodo n)
+{
+    if(n != Agen<herencia>::NODO_NULO)
+    {
+        int nHijos = NumHijosAgen(n, A);
+
+        // Hay hijos para repartir la herencia.
+        if(nHijos > 0)
+        {
+            // Obtenemos la cantidad de dinero que hay que darle a cada hijo.
+            int dinero_cada_hijo = A.elemento(n).dinero / nHijos;
+
+            // Obtenemos la cantidad de propiedades que hay que darle a cada hijo.
+            int npropiedades_cada_hijo = static_cast<int>(ceil(A.elemento(n).propiedades.size()));
+
+            // Repartimos dinero.
+            if(dinero_cada_hijo > 0)
+            {
+                typename Agen<herencia>::nodo hijo = A.hijoIzqdo(n);
+                while(hijo != Agen<herencia>::NODO_NULO)
+                {
+                    A.elemento(hijo).dinero = dinero_cada_hijo;
+                    hijo = A.hermDrcho(hijo);
+                }
+            }
+
+            // Repartirmos propiedades.
+            if(npropiedades_cada_hijo > 0)
+            {
+                typename Agen<herencia>::nodo hijo = A.hijoIzqdo(n);
+                while(hijo != Agen<herencia>::NODO_NULO)
+                {
+                    if(NumHijosAgen(hijo, A) > 0)
+                    {
+                        A.elemento(hijo).propiedades.push_back(A.elemento(n).propiedades[A.elemento(n).propiedades.size() - 1]);
+                        A.elemento(n).propiedades.pop_back();
+                    }
+                    hijo = A.hermDrcho(hijo);
+                }
+
+                if(!A.elemento(n).propiedades.empty())
+                {
+                    typename Agen<herencia>::nodo hijo = A.hijoIzqdo(n);
+                    while(hijo != Agen<herencia>::NODO_NULO && A.elemento(n).propiedades.size() > 0)
+                    {
+                        if(NumHijosAgen(hijo, A) == 0)
+                        {
+                            A.elemento(hijo).propiedades.push_back(A.elemento(n).propiedades[A.elemento(n).propiedades.size() - 1]);
+                            A.elemento(n).propiedades.pop_back();
+                        }
+                        hijo = A.hermDrcho(hijo);
+                    }
+                }
+            }
+
+            repartir_herencia_Rec(A, A.hijoIzqdo(n));
+        }
+    }
+}
+
+void repartir_herencia(Agen<herencia>& A)
+{
+    repartir_herencia_Rec(A, A.raiz());
+}
+
+
+int main()
+{
+    Agen<herencia> A;
+
+    std::vector<std::string> prop;
+    prop.push_back("Aston Martin");
+    prop.push_back("Casa playa");
+
+    A.insertarRaiz(herencia{1, 30000, prop});
+    A.insertarHijoIzqdo(A.raiz(), herencia{2, 0, std::vector<std::string>{}});
+    A.insertarHermDrcho(A.hijoIzqdo(A.raiz()), herencia{3, 0, std::vector<std::string>{}});
+    A.insertarHermDrcho(A.hermDrcho(A.hijoIzqdo(A.raiz())), herencia{4, 0, std::vector<std::string>{}});
+    
+    A.insertarHijoIzqdo(A.hijoIzqdo(A.raiz()), herencia{5, 0, std::vector<std::string>{}});
+    A.insertarHermDrcho(A.hijoIzqdo(A.hijoIzqdo(A.raiz())), herencia{6, 0, std::vector<std::string>{}});
+
+    cout << "*** Árbol General de herencia A ***" << endl << endl;
+    mostrar_arbol_herencia(A);
+
+    cout << endl;
+
+    cout << "*** Repartimos las herencias ***" << endl;
+    repartir_herencia(A);
+
+    cout << "*** Ahora, mostramos el Árbol general de herencias A tras el reparto ***" << endl;
+    mostrar_arbol_herencia(A);
+}
