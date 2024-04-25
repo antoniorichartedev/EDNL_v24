@@ -133,7 +133,10 @@ void repartir_herencia_Rec(Agen<herencia>& A, typename Agen<herencia>::nodo n)
                     hijo = A.hermDrcho(hijo);
                 }
             }
-
+            
+            // Una vez repartido el dinero, se lo quitamos al padre.
+            A.elemento(n).dinero = 0;
+            
             // Repartirmos propiedades.
             if(npropiedades_cada_hijo > 0)
             {
