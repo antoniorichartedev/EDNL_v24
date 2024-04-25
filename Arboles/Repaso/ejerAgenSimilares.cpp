@@ -109,14 +109,14 @@ int main()
 {
     Agen<int> A, B;
 
-    std::ifstream fe("agen.dat"); // Abrir fichero de entrada.
+    std::ifstream fe("agenSim.dat"); // Abrir fichero de entrada.
     rellenarAgen(fe, A);          // Desde fichero.
     fe.close();
 
     cout << "*** Árbol General A ***" << endl;
     imprimirAgen(A);
 
-    std::ifstream fe2("agen2.dat"); // Abrir fichero de entrada.
+    std::ifstream fe2("agenSim2.dat"); // Abrir fichero de entrada.
     rellenarAgen(fe2, B);           // Desde fichero.
     fe2.close();
 
