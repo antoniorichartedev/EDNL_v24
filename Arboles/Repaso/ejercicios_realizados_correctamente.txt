@@ -1,6 +1,8 @@
 Ancestro Común -> ok.
 Camino Abin -> ok.
 Poda Abin -> ok.
+Poda Agen -> ok.
 Nodos prósperos -> ok.
 Agen similares -> ok.
 Repartir Patrimonio -> ok.
+Abin es ABL -> ok.
